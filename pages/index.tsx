@@ -3,45 +3,12 @@ import { render } from "react-dom";
 import { createStore, combineReducers, Store } from "redux";
 import { Provider, useSelector, useDispatch } from "react-redux";
 
+import { peopleReducer } from "../reducer/peopleReducer";
 
+import { addPerson , removePerson} from "../actions/person";
 
-type Person = {
-  id: number;
-  name: string;
-};
-type AppState = {
-  people: Person[];
-};
+import { getTasks , addTask} from "../actions/tasks";
 
-function addPerson(personName: string) {
-  return {
-    type: "AddPerson",
-    payload: personName
-  } as const;
-}
-
-function removePerson(id: number) {
-  return {
-    type: "RemovePerson",
-    payload: id
-  } as const;
-}
-
-type Actions = ReturnType<typeof addPerson> | ReturnType<typeof removePerson>;
-
-function peopleReducer(state: Person[] = [], action: Actions) {
-  switch (action.type) {
-    case "AddPerson":
-      return state.concat({ id: state.length + 1, name: action.payload });
-    case "RemovePerson":
-      return state.filter(person => person.id !== action.payload);
-    default:
-      neverReached(action);
-  }
-  return state;
-}
-
-function neverReached(never: never) {}
 
 const rootReducer = combineReducers<AppState>({
   people: peopleReducer
@@ -59,8 +26,13 @@ const App = () => (
   </Provider>
 );
 
+
 const Page = () => {
   const [newPerson, setNewPerson] = React.useState("");
+  
+  const [tasks, setTasks] = React.useState([]);
+  const [refrash, setRefrash] = React.useState(false);
+
   const updateNewPerson = () => (e: React.ChangeEvent<HTMLInputElement>) =>
     setNewPerson(e.currentTarget.value);
 
@@ -73,6 +45,25 @@ const Page = () => {
     setNewPerson("");
   };
 
+  const handleSubmitTask = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log('getTask');
+    const data = JSON.parse(getTasks().payload)['data'];
+    Object.keys(
+      data
+    ).forEach( function(i){
+      dispatch(
+        addTask(
+          data[i].title
+        )
+      );
+    })
+
+
+    
+
+  };
+
   const dispatchNewPerson = (id: number) => () => {
     dispatch(removePerson(id));
   };
@@ -83,7 +74,7 @@ const Page = () => {
         {people.map(person => (
           <li key={person.id}>
             <span>{person.name}</span>
-            <button onClick={dispatchNewPerson(person.id)}>Remove</button>
+            <button onClick={dispatchNewPerson(person.id)}>Выполнено</button>
           </li>
         ))}
       </ul>
@@ -95,6 +86,16 @@ const Page = () => {
         />
         <button>Add</button>
       </form>
+      <form onSubmit={handleSubmitTask}>
+        <button>get</button>
+      </form>
+      {
+        Object.keys(
+          tasks
+        ).forEach( function(i){
+          <h1>das</h1>
+        })
+      }
     </div>
   );
 };
