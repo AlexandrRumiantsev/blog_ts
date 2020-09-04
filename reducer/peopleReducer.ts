@@ -16,14 +16,20 @@ export function peopleReducer(
   switch (action.type) {
     case "AddPerson":
       addPerson();
-      return state.concat({ id: state.length + 1, name: action.payload});
+      return state.concat(
+        { 
+          id: state.length + 1, 
+          name: 'Задача №' + state.length  +' '+ action.payload
+        }
+      );
     case "RemovePerson":
       return state.filter(person => person.id !== action.payload);
     case "AddTask":
+        state.concat({})
        return state.concat(
           { 
             id: state.length + 1, 
-            name: 'Задача №' + state.length + 1 +' '+ action.payload
+            name: 'Задача №' + state.length +' '+ action.payload
           }
        );
     default:

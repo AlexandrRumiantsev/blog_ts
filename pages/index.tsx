@@ -2,13 +2,11 @@ import * as React from "react";
 import { render } from "react-dom";
 import { createStore, combineReducers, Store } from "redux";
 import { Provider, useSelector, useDispatch } from "react-redux";
-
 import { peopleReducer } from "../reducer/peopleReducer";
-
 import { addPerson , removePerson} from "../actions/person";
-
 import { getTasks , addTask} from "../actions/tasks";
 
+import  TaskList  from "../components/TaskList";
 
 const rootReducer = combineReducers<AppState>({
   people: peopleReducer
@@ -25,13 +23,27 @@ const App = () => (
     <Page />
   </Provider>
 );
-
-
+const GetForm = (props) => {
+  const [status, setStatus] = React.useState(true);
+  const handler = props.handler;
+  if (status) {
+    return <Form setStatus={setStatus} handler={handler}/>;
+  }
+  return <></>;
+}
+const Form = (props) => {
+  const form = props;
+  let onsbm = function(){
+     form.setStatus(false)
+     form.handler()
+  }
+  return <form onSubmit={onsbm}>
+        <button>get</button>
+      </form>
+}
 const Page = () => {
   const [newPerson, setNewPerson] = React.useState("");
-  
   const [tasks, setTasks] = React.useState([]);
-  const [refrash, setRefrash] = React.useState(false);
 
   const updateNewPerson = () => (e: React.ChangeEvent<HTMLInputElement>) =>
     setNewPerson(e.currentTarget.value);
@@ -41,13 +53,15 @@ const Page = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    dispatch(addPerson(newPerson));
+    dispatch(
+      addPerson(
+        newPerson
+      )
+    );
     setNewPerson("");
   };
 
-  const handleSubmitTask = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log('getTask');
+  const handleSubmitTaskAll = (e: React.FormEvent<HTMLFormElement> ) => {
     const data = JSON.parse(getTasks().payload)['data'];
     Object.keys(
       data
@@ -58,10 +72,6 @@ const Page = () => {
         )
       );
     })
-
-
-    
-
   };
 
   const dispatchNewPerson = (id: number) => () => {
@@ -84,18 +94,12 @@ const Page = () => {
           value={newPerson}
           onChange={updateNewPerson()}
         />
-        <button>Add</button>
+        <button>Добавить задачу</button>
       </form>
-      <form onSubmit={handleSubmitTask}>
-        <button>get</button>
-      </form>
-      {
-        Object.keys(
-          tasks
-        ).forEach( function(i){
-          <h1>das</h1>
-        })
-      }
+      <GetForm 
+        handler={handleSubmitTaskAll}
+      />
+      <TaskList />
     </div>
   );
 };
